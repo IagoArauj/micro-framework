@@ -1,0 +1,18 @@
+{
+    "name": "iagoarauj/micro-framework",
+    "description": "Micro Framework for REST APIs",
+    "type": "library",
+    "readme": "README.md",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Iago Araújo de Oliveira",
+            "email": "iago.araujo@salesource.com.br",
+            "homepage": "https://twitter.com/iago__a",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.0"
+    }
+}
