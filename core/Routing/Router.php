@@ -27,16 +27,15 @@ class Router
     {
         switch ($callback) {
             case is_callable($callback):
-                return call_user_func($callback);
+                return \Core\Factory\ClosureMaker::returnClosure($callback);
                 break;
             
             case is_string($callback):
                 $temp = explode('@', $callback);
-                
-                $classname = '\\App\\Controllers\\' . $temp[0];
+                $classname = $temp[0];
                 $action = $temp[1];
                 
-                $obj = new $classname;
+                $obj = \Core\Factory\ClassMaker::newController($classname);
                 return $obj->$action();
                 
                 break;
