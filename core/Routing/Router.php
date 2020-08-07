@@ -17,10 +17,11 @@ class Router
     private static $patch = [];
 
     /**
-     * Check if the callback function is a string or a Closure
+     * Check if the callback function is a string or a Closure, and then,
+     * execute a valid response to our request, or throw a exception
      * 
      * @param mixed $callback
-     * @return Closure
+     * @return mixed
      */
     private function callbackFilter($callback)
     {
@@ -30,7 +31,6 @@ class Router
                 break;
             
             case is_string($callback):
-                // If the callback is in a function, then the string will be Class@method, so:
                 $temp = explode('@', $callback);
                 
                 $classname = '\\App\\Controllers\\' . $temp[0];
@@ -40,6 +40,7 @@ class Router
                 return $obj->$action();
                 
                 break;
+
             default:
                 throw new CallbackFunctionException("Undefined callback. Must be a string or a closure", 1);
                 break;
@@ -48,7 +49,7 @@ class Router
     }
 
     /**
-     * Add a new route listening with GET method
+     * Add a new route and callback to GET method
      * 
      * @param string $path
      * @param mixed $callback
@@ -59,7 +60,7 @@ class Router
     }
 
     /**
-     * Add a new route listening with POST method
+     * Add a new route and callback to POST method
      * 
      * @param string $path
      * @param mixed $callback
@@ -70,7 +71,7 @@ class Router
     }
 
     /**
-     * Add a new route listening with DELETE method
+     * Add a new route and callback to DELETE method
      * 
      * @param string $path
      * @param mixed $callback
@@ -81,7 +82,7 @@ class Router
     }
 
     /**
-     * Add a new route listening with PUT method
+     * Add a new route and callback to PUT method
      * 
      * @param string $path
      * @param mixed $callback
@@ -92,7 +93,7 @@ class Router
     }
 
     /**
-     * Add a new route listening with PATCH method
+     * Add a new route and callback to PATCH method
      * 
      * @param string $path 
      * @param mixed $callback
@@ -103,15 +104,17 @@ class Router
     }
 
     /**
-     * Search for the URI in a routes array
+     * Search for the URI in the routes array
      * 
      * @param mixed $route 
      * @param string $uri
      * 
-     * @return Closure
+     * @return mixed[]
      */
     private static function searchUri($routes, $uri)
     {
+        $found = false;
+        $callback = '';
         foreach($routes as $route)
         {
             $routeArray = explode('/', $route[0]);
@@ -134,15 +137,18 @@ class Router
 
             if($route[0] === $uri)
             {
-                return self::callbackFilter($route[1]);
+                $found = true;
+                $callback = $route[1];
+                break;
             }
         }
 
-        return http_response_code(404);
+        return [$found, $callback];
     }
 
     /**
-     * Will get the current URI and check if this is listed in one of array's route
+     * Will get the current URI and check if this is listed in one of array's route.
+     * Also, will return the response if the route was founded, or 404 HTTP's code
      * 
      * @param void
      * @return void
@@ -155,24 +161,62 @@ class Router
         switch ($method)
         {
             case "get":
-                self::searchUri(self::$get, $uri);
+                $checkedUri = self::searchUri(self::$get, $uri);
+
+                if($checkedUri[0])
+                {
+                    return self::callbackFilter($checkedUri[1]);
+                }
+                return http_response_code(404);
 
                 break;
 
             case "post":
-                self::searchUri(self::$post, $uri);
+                $checkedUri = self::searchUri(self::$post, $uri);
+                
+                if($checkedUri[0])
+                {
+                    return self::callbackFilter($checkedUri[1]);
+                }
+                return http_response_code(404);
+                
+
                 break;
 
             case "delete":
-                self::searchUri(self::$delete, $uri);
+                $checkedUri = self::searchUri(self::$delete, $uri);
+                
+                if($checkedUri[0])
+                {
+                    return self::callbackFilter($checkedUri[1]);
+                }
+                return http_response_code(404);
+                
+
                 break;
 
             case "put":
-                self::searchUri(self::$put, $uri);
+                $checkedUri = self::searchUri(self::$put, $uri);
+                
+                if($checkedUri[0])
+                {
+                    return self::callbackFilter($checkedUri[1]);
+                }
+                return http_response_code(404);
+                
+
                 break;
 
             case "patch":
-                self::searchUri(self::$patch, $uri);
+                $checkedUri = self::searchUri(self::$patch, $uri);
+                
+                if($checkedUri[0])
+                {
+                    return self::callbackFilter($checkedUri[1]);
+                }
+                return http_response_code(404);
+                
+
                 break;
 
             default:
