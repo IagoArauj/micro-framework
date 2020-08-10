@@ -1,6 +1,6 @@
 <?php
 
-namespace Core\Routing;
+namespace Core\Utils;
 
 use Core\Exceptions\{CallbackFunctionException};
 
@@ -31,9 +31,9 @@ class Router
                 break;
             
             case is_string($callback):
-                $temp = explode('@', $callback);
-                $classname = $temp[0];
-                $action = $temp[1];
+                $explodedCallback = explode('@', $callback);
+                $classname = $explodedCallback[0];
+                $action = $explodedCallback[1];
                 
                 $obj = \Core\Factory\ClassMaker::newController($classname);
                 return $obj->$action();
